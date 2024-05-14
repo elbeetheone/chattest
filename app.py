@@ -1,5 +1,9 @@
 from langchain_community.llms import Ollama 
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts import ChatPrompt
 import streamlit as st
+
+client = ChatOpenAI(model_name=llm, stream=True)
 
 llm = Ollama(model="llama3:70b")
 
