@@ -29,8 +29,8 @@ if "messages" not in st.session_state:
     ]
 
 st.title("🗣️ Ari's Here to help")
-for message in st.session_state.messages:
-    st.chat_message(message["role"]).markdown(message["content"])
+# for message in st.session_state.messages:
+#     st.chat_message(message["role"]).markdown(message["content"])
 
 prompt = foo
 if prompt:
@@ -38,7 +38,7 @@ if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     response = client.chat.completions.create(
-        model="llama.cpp/models/mistral-7b-instruct-v0.1.Q4_0.gguf",
+        model="gpt-3.5-turbo",
         messages=st.session_state.messages,
         stream=True,
     )
