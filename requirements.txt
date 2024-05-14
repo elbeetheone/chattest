@@ -1,5 +1,3 @@
 langchain
 langchain_community
 streamlit
-langchain.prompts
-langchain.chat_models
