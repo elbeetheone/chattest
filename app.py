@@ -1,29 +1,56 @@
 from openai import OpenAI
 import streamlit as st
 
-with st.sidebar:
-    openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
-    "[Get an OpenAI API key](https://platform.openai.com/account/api-keys)"
-    "[View the source code](https://github.com/streamlit/llm-examples/blob/main/Chatbot.py)"
-    "[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/streamlit/llm-examples?quickstart=1)"
+client = OpenAI(api_key= st.secrets['OPENAI_API_KEY'])
 
-st.title("💬 Chatbot")
-st.caption("🚀 A Streamlit chatbot powered by OpenAI")
+# Extract the 'foo' parameter
+foo = st.query_params.get("foo", ["default_value"])
+
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [{"role": "assistant", "content": "How can I help you?"}]
+    st.session_state["messages"] = [
+        {
+            "role": "system",
+            "content": """
+                Assess the speech transcript below on the parameters below.
+                Format your response using at most 2 bullet points for each parameter and provide specific
+                feedback based on the transcript. Consider the use of filler words (e.g., "um", "uh"),
+                and suggest ways to improve the speech's impact. Use examples from the content to support your assessment, and do not invent details.
 
-for msg in st.session_state.messages:
-    st.chat_message(msg["role"]).write(msg["content"])
+                Your response should follow this structure with each parameter within an indented block:
 
-if prompt := st.chat_input():
-    if not openai_api_key:
-        st.info("Please add your OpenAI API key to continue.")
-        st.stop()
+                I. Interesting and Concise Introduction
+                II. Content Quality and Organization
+                III. Delivery Flow
+                IV. Vocal Variety and Tone
+                Provide a quick summary
 
-    client = OpenAI(api_key=openai_api_key)
+            """,
+        }
+    ]
+
+st.title("🗣️ Ari's Here to help")
+for message in st.session_state.messages:
+    st.chat_message(message["role"]).markdown(message["content"])
+
+prompt = foo
+if prompt:
+    # st.chat_message("user").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
-    st.chat_message("user").write(prompt)
-    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=st.session_state.messages)
-    msg = response.choices[0].message.content
-    st.session_state.messages.append({"role": "assistant", "content": msg})
-    st.chat_message("assistant").write(msg)
+
+    response = client.chat.completions.create(
+        model="llama.cpp/models/mistral-7b-instruct-v0.1.Q4_0.gguf",
+        messages=st.session_state.messages,
+        stream=True,
+    )
+
+    complete_response = ""
+    with st.chat_message("assistant"):
+        message_placeholder = st.empty()
+        for chunk in response:
+            if chunk.choices[0].delta.content is not None:
+                complete_response += chunk.choices[0].delta.content
+                message_placeholder.markdown(complete_response + "▌")
+                message_placeholder.markdown(complete_response)
+    st.session_state.messages.append(
+        {"role": "assistant", "content": complete_response}
+    )
