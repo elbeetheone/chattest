@@ -5,8 +5,16 @@ llm = Ollama(model="llama3:70b")
 
 st.title("Chatbot using Llama3")
 
-for message in st.session_state.messages:
-    st.chat_message(message["role"]).markdown(message["content"])
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [
+        {
+            "role": "system",
+            "content": """
+                You are an intelligent assistant. Help the user.
+
+            """,
+        }
+    ]
 
 
 prompt = st.text_area("Enter your prompt:")
@@ -16,7 +24,7 @@ if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     response = client.chat.completions.create(
-        model="llama.cpp/models/mistral-7b-instruct-v0.1.Q4_0.gguf",
+        model=llm,
         messages=st.session_state.messages,
         stream=True,
     )
