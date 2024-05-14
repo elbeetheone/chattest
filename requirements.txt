@@ -1,2 +1,2 @@
 streamlit 
-langchain_community
+langchain-community
