@@ -7,6 +7,17 @@ st.title("Chatbot using Llama3")
 
 prompt = st.text_area("Enter your prompt:")
 
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [
+        {
+            "role": "system",
+            "content": """
+                You are a helpful assistant
+
+            """,
+        }
+    ]
+
 if st.button("Generate"):
     if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
