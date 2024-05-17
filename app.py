@@ -10,21 +10,7 @@ if "messages" not in st.session_state:
     st.session_state["messages"] = [
         {
             "role": "system",
-            "content": """
-                Assess the speech transcript below on the parameters below.
-                Format your response using at most 2 bullet points for each parameter and provide specific
-                feedback based on the transcript. Consider the use of filler words (e.g., "um", "uh"),
-                and suggest ways to improve the speech's impact. Use examples from the content to support your assessment, and do not invent details.
-
-                Your response should follow this structure with each parameter within an indented block:
-
-                I. Interesting and Concise Introduction
-                II. Content Quality and Organization
-                III. Delivery Flow
-                IV. Vocal Variety and Tone
-                Provide a quick summary
-
-            """,
+            "content": st.secrets['PROMPT'],
         }
     ]
 
