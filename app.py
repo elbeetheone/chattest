@@ -1,6 +1,21 @@
 from openai import OpenAI
 import streamlit as st
 
+hide_github_icon = """
+#MainMenu {
+  visibility: hidden;
+}
+"""
+
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
+
 client = OpenAI(api_key= st.secrets['OPENAI_API_KEY'])
 
 # Extract the 'foo' parameter
