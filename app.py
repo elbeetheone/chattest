@@ -1,11 +1,6 @@
 from openai import OpenAI
 import streamlit as st
 
-hide_github_icon = """
-#MainMenu {
-  visibility: hidden;
-}
-"""
 
 hide_st_style = """
             <style>
