@@ -1,4 +1,4 @@
-from gensim.models.keyedvectors import KeyedVectors
+from gensim.models import Word2Vec, KeyedVectors
 from english_words import get_english_words_set
 
 from english_words import get_english_words_set
