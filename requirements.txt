@@ -1,2 +1,4 @@
 openai
 streamlit
+gensim
+english_words
