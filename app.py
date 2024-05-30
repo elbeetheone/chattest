@@ -22,7 +22,7 @@ def paste_budz():
 
 
 
-st.title(' '.join(paste_budz)
+st.title(' '.join(paste_budz))
 
 # from openai import OpenAI
 # import streamlit as st
