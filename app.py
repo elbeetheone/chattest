@@ -22,7 +22,7 @@ def paste_budz():
 
 
 
-print(paste_budz)
+print(paste_budz())
 
 # from openai import OpenAI
 # import streamlit as st
