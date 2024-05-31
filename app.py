@@ -1,7 +1,7 @@
+import streamlit as st
 from gensim.models import Word2Vec, KeyedVectors
 from english_words import get_english_words_set
 
-from english_words import get_english_words_set
 
 def paste_budz():
     def has_more_than_five_similars(word, web2lowerset, wv):
