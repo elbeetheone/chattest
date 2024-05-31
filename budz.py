@@ -9,7 +9,7 @@ foo = st.query_params.get("foo", ["default_value"])
 # user_words = st.query_params.get("user_words", ["default_value"])
 # user = st.query_params.get("user", ["default_value"])
 
-st.title(str(foo+1))
+st.title(foo+1)
 
 # wv = KeyedVectors.load('google_50_vectors.kv')
 
