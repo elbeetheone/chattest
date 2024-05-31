@@ -6,6 +6,7 @@ import json
 
 foo = st.query_params.get("foo", ["default_value"])
 user_words = st.query_params.get("user_words", ["default_value"])
+user = st.query_params.get("user", ["default_value"])
 
 
 wv = KeyedVectors.load('google_50_vectors.kv')
@@ -26,5 +27,6 @@ def seenonim(user_response):
     return nu_list
 
 
-myobj = {'result': seenonim(user_words)}
-st.json(myobj)
+url = 'https://speakeasi.app/_/api/budzscore'
+myobj = {'today_words': seenonim(user_words), 'user':user}
+requests.post(url, json = myobj)
