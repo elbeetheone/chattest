@@ -1,7 +1,11 @@
 import streamlit as st
 from gensim.models import Word2Vec, KeyedVectors
 from english_words import get_english_words_set
+import random
 
+wv = KeyedVectors.load('google_50_vectors.kv')
+words = list(wv.key_to_index.keys())
+web2lowerset = get_english_words_set(['web2'], lower=True)
 
 def paste_budz():
     def has_more_than_five_similars(word, web2lowerset, wv):
@@ -22,7 +26,7 @@ def paste_budz():
 
 
 
-print(paste_budz())
+st.title(str(paste_budz()))
 
 # from openai import OpenAI
 # import streamlit as st
