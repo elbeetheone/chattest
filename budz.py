@@ -3,6 +3,7 @@ import streamlit as st
 import difflib
 from gensim.models.keyedvectors import KeyedVectors
 import json
+import requests
 
 foo = st.query_params.get("foo", ["default_value"])
 user_words = st.query_params.get("user_words", ["default_value"])
