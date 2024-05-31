@@ -1,16 +1,17 @@
 
-import streamlit
+import streamlit as st
 import difflib
 from gensim.models.keyedvectors import KeyedVectors
+import json
 
 foo = st.query_params.get("foo", ["default_value"])
-user = st.query_params.get("user", ["default_value"])
+user_words = st.query_params.get("user_words", ["default_value"])
+
 
 wv = KeyedVectors.load('google_50_vectors.kv')
 
 def seenonim(user_response):
     nu_list = []
-    row = app_tables.users.get(username='OLaoluwa.i#&12')
     today = foo
     for num in range(5):
         try:
@@ -24,4 +25,6 @@ def seenonim(user_response):
             nu_list.append(0)
     return nu_list
 
-seenonim(user)
+
+myobj = {'result': seenonim(user_words)}
+st.json(myobj)
