@@ -28,6 +28,6 @@ def paste_budz():
     return today_words
 
 if foo == st.secrets['CODE']:
-    url = 'https://speakeasi.app/_/api/savevideo'
+    url = st.secrets['WEB']
     myobj = {'today_words': paste_budz()}
     requests.post(url, json = myobj)
