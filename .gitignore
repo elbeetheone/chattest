@@ -1,0 +1,3 @@
+#ignore the kv and npy files in the directory
+*.kv
+*.npy
