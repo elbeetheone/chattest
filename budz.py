@@ -4,32 +4,40 @@ import difflib
 from gensim.models.keyedvectors import KeyedVectors
 import json
 import requests
+wv = KeyedVectors.load('google_50_vectors.kv')
 
-foo = st.query_params.get("foo", ["default_value"])
+
+# Extract parameters with default values if they don't exist
 user_words = st.query_params.get("user_words", ["default_value"])
 user = st.query_params.get("user", ["default_value"])
+foo = st.query_params.get("foo", ["default_value"])
 
-user_words = user_words_str.split(',')
-foo = foo.split(',')
 
-wv = KeyedVectors.load('google_50_vectors.kv')
+
+foo_ = foo.split(',')
+user_words_ = user_words.split(',')
+
+
 
 def seenonim(user_response):
     nu_list = []
-    today = foo
+    today = foo_
     for num in range(5):
         try:
-            if today[num] == user_response[num].lower():
-                nu_list.append(0)
-            elif difflib.SequenceMatcher(None, today[num], user_response[num].lower()).ratio() > 0.8:
-                nu_list.append(0.05)
+            if today[num] == user_response[num].lower() or  user_response[num] == '_':
+                nu_list.append(json.dumps(str(0)))
+            elif difflib.SequenceMatcher(None, today[num], user_response[num].lower()).ratio() > 0.75:
+                nu_list.append(json.dumps(str(0.05)))
             else:
-                nu_list.append(wv.similarity(today[num],user_response[num].lower()))
+                score = wv.similarity(today[num],user_response[num].lower())
+                nu_list.append(json.dumps(str((score))))
         except Exception as e:
-            nu_list.append(0)
+            # nu_list.append({'word':today[num], 'score': 0, 'scores': 0, 'synonym': user_response[num]})
+            nu_list.append(json.dumps(str(0)))
     return nu_list
 
 
-url = 'https://speakeasi.app/_/api/budzscore'
-myobj = {'today_words': seenonim(user_words), 'user':user}
+
+url = st.secrets['WEB']
+myobj = {'today_words': seenonim(user_words_), 'user':user, 'foo':foo, 'user_words': user_words}
 requests.post(url, json = myobj)
