@@ -43,8 +43,7 @@ def seenonim(user_response):
     return nu_list
 
 
-st.write(seenonim(user_words_))
 
-# url = st.secrets['WEB']
-# myobj = {'today_words': seenonim(user_words_), 'user':user, 'foo':foo, 'user_words': user_words}
-# requests.post(url, json = myobj)
+url = st.secrets['WEB']
+myobj = {'today_words': seenonim(user_words_), 'user':user, 'foo':foo, 'user_words': user_words}
+requests.post(url, json = myobj)
