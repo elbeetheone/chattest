@@ -11,7 +11,7 @@ def load_model(name):
     model_wiki = gensim.downloader.load(name)
     return model_wiki
 
-wv = load_model('glove-wiki-gigaword-50')
+wv = load_model('glove-twitter-50')
 
 # Extract parameters with default values if they don't exist
 user_words = st.query_params.get("user_words", ["default_value"])
