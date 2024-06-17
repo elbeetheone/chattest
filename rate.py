@@ -1,5 +1,6 @@
 import streamlit as st
 from gensim.models import Word2Vec, KeyedVectors
+import gensim.downloader
 import re
 import numpy as np
 import nltk
@@ -79,7 +80,7 @@ def convertToVec(text):
 
 @st.cache_resource
 def get_transcript(topic, transcript):
-    wv = load_model('glove-wiki-gigaword-50')
+    wv = gensim.downloader.load('glove-wiki-gigaword-50')
     ratings_1 = convertToVec(transcript) * 0.80
     ratings_2 = abs(1-wv.wmdistance(topic,transcript)) * 0.20
     Content_ratings = ratings_1 + ratings_2
