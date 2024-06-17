@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import cohen_kappa_score
 from keras.layers import Embedding, LSTM, Dense, Dropout, Lambda, Flatten
-from keras.models import Sequential, load_model, model_from_config
+from tf.keras.models import Sequential, load_model, model_from_config
 from keras import backend as K
 
 
