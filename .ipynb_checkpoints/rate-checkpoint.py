@@ -11,7 +11,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import cohen_kappa_score
 from keras.layers import Embedding, LSTM, Dense, Dropout, Lambda, Flatten
 import tensorflow as tf
-from tf.keras.models import Sequential, load_model, model_from_config
+from tensorflow.keras.models import Sequential, load_model, model_from_config
 from keras import backend as K
 
 
