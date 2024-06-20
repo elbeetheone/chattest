@@ -2,5 +2,5 @@ streamlit
 gensim
 english_words
 scipy==1.10.0
-nltk
 tensorflow
+POT==0.4.0
