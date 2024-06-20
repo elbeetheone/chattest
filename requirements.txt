@@ -3,6 +3,4 @@ gensim
 english_words
 scipy==1.10.0
 nltk
-scikit-learn
-keras
-tensorflow==2.15
+tensorflow
