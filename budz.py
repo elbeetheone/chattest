@@ -40,7 +40,7 @@ def seenonim(user_response):
 
 def get_transcript(topic, transcript):
     ratings = abs(1-wv.wmdistance(topic,transcript))
-    #lazy model :)
+    ratings = json.dumps(str(ratings))
     return ratings
 
 
