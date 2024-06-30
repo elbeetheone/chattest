@@ -19,6 +19,8 @@ user = st.query_params.get("user", ["default_value"])
 foo = st.query_params.get("foo", ["default_value"])
 bar = st.query_params.get("bar", ["default_value"])
 
+st.write(user_words)
+st.write(foo)
 
 
 def seenonim(user_response):
