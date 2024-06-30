@@ -51,5 +51,7 @@ if bar == st.secrets['BAR_1']:
 
 if bar == st.secrets['BAR_2']:
     url = st.secrets['WEB_2']
+    foo = foo.replace(',',' ').lower()
+    user_words = user_words.replace(',',' ').lower()
     myobj = {'score': get_transcript(user_words, foo), 'user':user}
     requests.post(url, json = myobj)
