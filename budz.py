@@ -4,6 +4,9 @@ import difflib
 import gensim.downloader
 import json
 import requests
+import inflect
+
+engine = inflect.engine()
 
 
 @st.cache_resource
@@ -26,6 +29,8 @@ def seenonim(user_response):
     for num in range(5):
         try:
             if today[num] == user_response[num].lower() or  user_response[num] == '_':
+                nu_list.append(json.dumps(str(0)))
+            if engine.plural(today[num]) == user_response[num].lower() or  today[num] == engine.plural(user_response[num].lower()):
                 nu_list.append(json.dumps(str(0)))
             elif difflib.SequenceMatcher(None, today[num], user_response[num].lower()).ratio() > 0.75:
                 nu_list.append(json.dumps(str(0.05)))
