@@ -22,20 +22,36 @@ user = st.query_params.get("user", ["default_value"])
 foo = st.query_params.get("foo", ["default_value"])
 bar = st.query_params.get("bar", ["default_value"])
 
+def get_adverb(word):
+    # Basic rule to convert adjective to adverb
+    if word.endswith('y'):
+        return word[:-1] + 'ily'
+    elif word.endswith('le'):
+        return word[:-1] + 'y'
+    elif word.endswith('ic'):
+        return word + 'ally'
+    else:
+        return word + 'ly'
 
 def seenonim(user_response):
     today = foo.split(',')
     nu_list = []
     for num in range(5):
         try:
-            if today[num] == user_response[num].lower() or  user_response[num] == '_':
+            response_lower = user_response[num].lower()
+            if today[num] == response_lower or  user_response[num] == '_':
                 nu_list.append(json.dumps(str(0)))
-            if engine.plural(today[num]) == user_response[num].lower() or  today[num] == engine.plural(user_response[num].lower()):
+            elif engine.plural(today[num]) == response_lower or  today[num] == engine.plural(response_lower):
+                #control for plurals
                 nu_list.append(json.dumps(str(0)))
-            elif difflib.SequenceMatcher(None, today[num], user_response[num].lower()).ratio() > 0.75:
+            elif today[num] == get_adverb(response_lower) or get_adverb(today[num]) == response_lower:
+                nu_list.append(json.dumps(str(0)))
+                #control for adverbs
+            elif difflib.SequenceMatcher(None, today[num], response_lower).ratio() > 0.9:
                 nu_list.append(json.dumps(str(0.05)))
+                #control for words that are too similarly spelt
             else:
-                score = wv.similarity(today[num],user_response[num].lower())
+                score = wv.similarity(today[num],response_lower)
                 nu_list.append(json.dumps(str((score))))
         except Exception as e:
             # nu_list.append({'word':today[num], 'score': 0, 'scores': 0, 'synonym': user_response[num]})
