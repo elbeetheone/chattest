@@ -60,6 +60,8 @@ def seenonim(user_response):
 
 def get_transcript(topic, transcript):
     ratings = abs(1-wv.wmdistance(topic,transcript))
+    controls = (user_words.count('um') + user_words.count('uh')) * 0.25
+    ratings = ratings - controls
     ratings = json.dumps(str(ratings))
     return ratings
 
