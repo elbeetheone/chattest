@@ -58,9 +58,8 @@ def seenonim(user_response):
             nu_list.append(json.dumps(str(0)))
     return nu_list
 
-def get_transcript(topic, transcript):
+def get_transcript(topic, transcript, controls):
     ratings = abs(1-wv.wmdistance(topic,transcript))
-    controls = (user_words.count('um') + user_words.count('uh')) * 0.25
     ratings = ratings - controls
     if ratings < 5:
         ratings = 5
@@ -77,6 +76,8 @@ if bar == st.secrets['BAR_1']:
 if bar == st.secrets['BAR_2']:
     url = st.secrets['WEB_2']
     foo = foo.replace(',',' ').lower()
+    user_words_ = user_words.split(',')
+    controls = (user_words_.count('um') + user_words_.count('uh')) * 0.25
     user_words = user_words.replace(',',' ').lower()
-    myobj = {'score': get_transcript(user_words, foo), 'user':user}
+    myobj = {'score': get_transcript(user_words, foo, controls), 'user':user}
     requests.post(url, json = myobj)
