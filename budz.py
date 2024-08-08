@@ -21,6 +21,7 @@ user_words = st.query_params.get("user_words", ["default_value"])
 user = st.query_params.get("user", ["default_value"])
 foo = st.query_params.get("foo", ["default_value"])
 bar = st.query_params.get("bar", ["default_value"])
+played = st.query_params.get("played", ["default_value"])
 
 def get_adverb(word):
     # Basic rule to convert adjective to adverb
@@ -70,7 +71,7 @@ def get_transcript(topic, transcript, controls):
 if bar == st.secrets['BAR_1']:
     user_words_ = user_words.split(',')
     url = st.secrets['WEB']
-    myobj = {'today_words': seenonim(user_words_), 'user':user, 'foo':foo, 'user_words': user_words}
+    myobj = {'today_words': seenonim(user_words_), 'user':user, 'foo':foo, 'user_words': user_words, 'played': played}
     requests.post(url, json = myobj)
 
 if bar == st.secrets['BAR_2']:
