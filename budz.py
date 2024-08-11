@@ -5,6 +5,7 @@ import gensim.downloader
 import json
 import requests
 import inflect
+from textblob import Word
 
 engine = inflect.engine()
 
@@ -38,7 +39,7 @@ def seenonim(user_response):
     nu_list = []
     for num in range(5):
         try:
-            response_lower = user_response[num].lower()
+            response_lower = Word(user_response[num].lower()).correct()
             if today[num] == response_lower or  user_response[num] == '_':
                 nu_list.append(json.dumps(str(0)))
             elif engine.plural(today[num]) == response_lower or  today[num] == engine.plural(response_lower):
