@@ -71,16 +71,14 @@ def get_transcript(topic, transcript, controls):
 if bar == st.secrets['BAR_1']:
     user_words_ = user_words.split(',')
     url = st.secrets['WEB']
-    item = seenonim(user_words_)
-    myobj = {'today_words': item[0], 'user':user, 'foo':foo, 'user_words': user_words, 'route': bar}
+    myobj = {'today_words': seenonim(user_words_), 'user':user, 'foo':foo, 'user_words': user_words, 'route': bar}
     requests.post(url, json = myobj)
 
 
 if bar == st.secrets['BAR_3']:
     user_words_ = user_words.split(',')
     url = st.secrets['WEB']
-    item = seenonim(user_words_)
-    myobj = {'today_words': item[0], 'user':user, 'foo':foo, 'user_words': user_words, 'route': bar}
+    myobj = {'today_words': seenonim(user_words_), 'user':user, 'foo':foo, 'user_words': user_words, 'route': bar}
     requests.post(url, json = myobj)
 
 if bar == st.secrets['BAR_2']:
