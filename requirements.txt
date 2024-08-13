@@ -5,4 +5,3 @@ scipy==1.10.0
 tensorflow
 POT
 inflect
-textblob

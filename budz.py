@@ -5,7 +5,7 @@ import gensim.downloader
 import json
 import requests
 import inflect
-from textblob import Word
+
 
 engine = inflect.engine()
 
@@ -37,11 +37,9 @@ def get_adverb(word):
 def seenonim(user_response):
     today = foo.split(',')
     nu_list = []
-    words = []
     for num in range(5):
         try:
-            response_lower = Word(user_response[num].lower()).correct()
-            words.append(response_lower)
+            response_lower = user_response[num].lower()
             if today[num] == response_lower or  user_response[num] == '_':
                 nu_list.append(json.dumps(str(0)))
             elif engine.plural(today[num]) == response_lower or  today[num] == engine.plural(response_lower):
@@ -59,7 +57,7 @@ def seenonim(user_response):
         except Exception as e:
             # nu_list.append({'word':today[num], 'score': 0, 'scores': 0, 'synonym': user_response[num]})
             nu_list.append(json.dumps(str(0)))
-    return nu_list, words
+    return nu_list
 
 def get_transcript(topic, transcript, controls):
     ratings = abs(1-wv.wmdistance(topic,transcript))
@@ -74,7 +72,7 @@ if bar == st.secrets['BAR_1']:
     user_words_ = user_words.split(',')
     url = st.secrets['WEB']
     item = seenonim(user_words_)
-    myobj = {'today_words': item[0], 'user':user, 'foo':foo, 'user_words': ','.join(item[-1]), 'route': bar}
+    myobj = {'today_words': item[0], 'user':user, 'foo':foo, 'user_words': user_words, 'route': bar}
     requests.post(url, json = myobj)
 
 
@@ -82,7 +80,7 @@ if bar == st.secrets['BAR_3']:
     user_words_ = user_words.split(',')
     url = st.secrets['WEB']
     item = seenonim(user_words_)
-    myobj = {'today_words': item[0], 'user':user, 'foo':foo, 'user_words': ','.join(item[-1]), 'route': bar}
+    myobj = {'today_words': item[0], 'user':user, 'foo':foo, 'user_words': user_words, 'route': bar}
     requests.post(url, json = myobj)
 
 if bar == st.secrets['BAR_2']:
