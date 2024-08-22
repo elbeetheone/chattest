@@ -1,10 +1,12 @@
 import streamlit as st
 import difflib
 # from gensim.models.keyedvectors import KeyedVectors
+from english_words import get_english_words_set
 import gensim.downloader
 import json
 import requests
 import inflect
+import random
 
 
 engine = inflect.engine()
@@ -68,6 +70,28 @@ def get_transcript(topic, transcript, controls):
     ratings = json.dumps(str(ratings))
     return ratings
 
+def words_web():
+    words = list(wv.key_to_index.keys())
+    web2lowerset = get_english_words_set(['web2'], lower=True)
+    return words, web2lowerset
+
+def paste_budz():
+    words, web2lowerset = words_web()
+    def has_more_than_five_similars(word, web2lowerset, wv):
+        similar_words = [similar_word[0] for similar_word in wv.most_similar(word, topn=10)]
+        return len([sw for sw in similar_words if sw in web2lowerset]) > 5
+
+    # Filter words by length and presence in web2lowerset
+    ran_letter = [num for num in words if len(num) >= 5 and num in web2lowerset]
+
+    # Ensure today_words has 5 words that meet the condition
+    today_words = []
+    while len(today_words) < 5:
+        candidate = random.choice(ran_letter)  # Choose a random word from ran_letter
+        # Add the candidate if it meets the condition and isn't already in today_words
+        if has_more_than_five_similars(candidate, web2lowerset, wv) and candidate not in today_words:
+            today_words.append(candidate)
+
 
 if bar == st.secrets['BAR_1']:
     user_words_ = user_words.split(',')
@@ -84,4 +108,14 @@ if bar == st.secrets['BAR_2']:
     controls = (user_words_.count('um') + user_words_.count('uh')) * 0.25
     user_words = user_words.replace(',',' ').lower()
     myobj = {'score': get_transcript(user_words, foo, controls), 'user':user}
+    requests.post(url, json = myobj)
+
+
+if bar == st.secrets['BAR_3']:
+    foo_ = int(foo) if foo.isdigit() else None
+    list_to_pass = []
+    for num in range(foo_):
+        list_to_pass.append(paste_budz())
+    url = st.secrets['WEB_3']
+    myobj = {'user_words': list_to_pass, 'league': route}
     requests.post(url, json = myobj)
