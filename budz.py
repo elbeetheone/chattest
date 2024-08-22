@@ -91,6 +91,7 @@ def paste_budz():
         # Add the candidate if it meets the condition and isn't already in today_words
         if has_more_than_five_similars(candidate, web2lowerset, wv) and candidate not in today_words:
             today_words.append(candidate)
+    return today_words
 
 
 if bar == st.secrets['BAR_1']:
