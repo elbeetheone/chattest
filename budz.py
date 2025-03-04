@@ -7,6 +7,7 @@ import json
 import requests
 import inflect
 import random
+import ast
 
 
 engine = inflect.engine()
@@ -120,3 +121,10 @@ if bar == st.secrets['BAR_3']:
     url = st.secrets['WEB_3']
     myobj = {'user_words': list_to_pass, 'league': route}
     requests.post(url, json = myobj)
+
+if bar == st.secrets['BAR_4']:
+    user_words = ast.literal_eval(user_words)
+    response = ''
+    for i, (key, value) in enumerate(data.items(), 1):
+        response += (f"Question: {key}, A:{value} |")
+        st.title = response
