@@ -128,4 +128,5 @@ if bar == st.secrets['BAR_4']:
     response = ' '
     for i, item in enumerate(items, start=1):
         response += f" {item}|"
-    st.title = response.strip()
+    response = response.replace(',',' ')
+    st.write(response.strip())
