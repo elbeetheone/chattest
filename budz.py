@@ -125,6 +125,6 @@ if bar == st.secrets['BAR_3']:
 if bar == st.secrets['BAR_4']:
     user_words = ast.literal_eval(user_words)
     response = ''
-    for i, (key, value) in enumerate(data.items(), 1):
+    for i, (key, value) in enumerate(user_words.items(), 1):
         response += (f"Question: {key}, A:{value} |")
         st.title = response
