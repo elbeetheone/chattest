@@ -1,14 +1,19 @@
 import streamlit as st
 import difflib
-# from gensim.models.keyedvectors import KeyedVectors
 from english_words import get_english_words_set
 import gensim.downloader
 import json
 import requests
 import inflect
 import random
-
-
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+from PyPDF2 import PdfReader, PdfWriter
+from io import BytesIO
+import base64
+import openai
 
 engine = inflect.engine()
 
@@ -95,6 +100,98 @@ def paste_budz():
     return today_words
 
 
+def get_feedback(content, content_dict, recommendation):
+    packet = BytesIO()
+    doc = SimpleDocTemplate(packet, pagesize=letter)
+    styles = getSampleStyleSheet()
+
+    # **Custom Styles**
+    header_style = ParagraphStyle('Header', parent=styles['Heading1'], fontSize=14, textColor=colors.black, spaceAfter=10, bold=True)
+    subheader_style = ParagraphStyle('SubHeader', parent=styles['Heading2'], fontSize=12, textColor=colors.orange, spaceAfter=8, bold=True)
+    bullet_style = ParagraphStyle('Bullet', parent=styles['Normal'], bulletText='•', spaceAfter=5, leftIndent=20)
+    star_style = ParagraphStyle('Stars', parent=styles['Normal'], fontSize=12, textColor=colors.orange, spaceAfter=5)
+    body_style = ParagraphStyle('Body', parent=styles['Normal'], fontSize=11, textColor=colors.black, spaceAfter=10)
+
+    for num in content_dict:
+        content.append(Paragraph(f"<b>{num}</b>", header_style))
+        for category, rating, points in content_dict[num][0]:
+            content.append(Paragraph(f"<b>{category}: {rating}</b>", subheader_style))
+            for point in points:
+                content.append(Paragraph(f"{point}", bullet_style))
+            content.append(Spacer(1, 10))
+        content.append(Paragraph("<b>Final Feedback & Suggested Improvements</b>", header_style))
+        content.append(Paragraph(f"<b>Overall Rating:</b> {content_dict[num][1]}", star_style))
+        content.append(Paragraph(f"{content_dict[num][2]}", body_style))
+        improvements = content_dict[num][3]
+
+        for improvement in improvements:
+            content.append(Paragraph(f"{improvement}", bullet_style))
+
+        content.append(Spacer(1, 10))
+
+        content.append(Paragraph("<b>Example Improvement:</b>", subheader_style))
+        improvement_text = f"""{content_dict[num][4]}"""
+        content.append(Paragraph(improvement_text, body_style))
+
+        content.append(Spacer(1, 10))
+        content.append(Paragraph("<b>_________________________</b>", subheader_style))
+    content.append(Paragraph("<b>Recommendation</b>", header_style))
+    content.append(Paragraph(f"{recommendation}", body_style))
+
+    return content, packet, doc
+
+
+def overlay_evaluation_on_existing_pdf(existing_pdf_path, nu_dict, recommendation):
+    # Step 1: Read the existing PDF
+    existing_pdf = PdfReader(existing_pdf_path)
+    output = PdfWriter()
+
+
+    content = get_feedback([], nu_dict, recommendation)
+    doc = content[-1]
+    doc.build(content[0])
+    packet = content[1]
+    packet.seek(0)
+
+    # Step 3: Merge new content onto existing PDF
+    new_pdf = PdfReader(packet)
+    cover_pdf = PdfReader('cover_page_aceit.pdf')
+
+    # Add cover pages first
+    for page in cover_pdf.pages:
+        output.add_page(page)
+
+    for i in range(len(existing_pdf.pages)):
+        page = existing_pdf.pages[i]
+
+        if i == 0:
+            continue
+
+        new_blank_page = PageObject.create_blank_page(width=page.mediabox[2], height=page.mediabox[3])
+        new_blank_page.merge_page(existing_pdf.pages[0])
+        new_blank_page.merge_page(page)
+        output.add_page(new_blank_page)
+
+    for j in range(len(new_pdf.pages)):
+        new_page = new_pdf.pages[j]
+        new_blank_page = PageObject.create_blank_page(width=new_page.mediabox[2], height=new_page.mediabox[3])
+        new_blank_page.merge_page(existing_pdf.pages[0])
+        new_blank_page.merge_page(new_page)
+        output.add_page(new_blank_page)
+
+    pdf_buffer = BytesIO()
+    output.write(pdf_buffer)
+    pdf_buffer.seek(0)
+
+    encoded_pdf = base64.b64encode(pdf_buffer.read()).decode("utf-8")
+
+    url = st.secrets['WEB_4']
+    response = requests.post(url, json={'pdf': encoded_pdf})
+    return response
+
+
+
+
 if bar == st.secrets['BAR_1']:
     user_words_ = user_words.split(',')
     url = st.secrets['WEB']
@@ -125,8 +222,24 @@ if bar == st.secrets['BAR_3']:
 if bar == st.secrets['BAR_4']:
     user_words = user_words.split("|")
     items = [item.strip() for item in user_words if item.strip()]
-    response = ' '
-    for i, item in enumerate(items, start=1):
-        response += f" {item}|"
-    response = response.replace(',',' ')
-    st.write(response.strip())
+    questions = [item.split("A:")[0] for item in items if "A:" in item]
+    questions = [item.split("Q:,")[1] for item in questions if "Q:" in item]
+    answers = [item.split("A:")[1] for item in items if "A:" in item]
+    user_response = {}
+    for _, num in zip(questions, answers):
+        if 'closing' not in _:
+            user_response[_.replace(',',' ').strip()] = num.replace(',',' ')
+
+    response = openai.ChatCompletion.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": st.secrets['PROMPT']},
+        {"role": "user", "content":st.secrets['PROMPT_1']}
+        ])
+
+    content = response["choices"][0]["message"]["content"]
+    split_index = content.rfind("}") + 1
+    evaluation_dict = json.loads(content[:split_index])
+    recommendation = content[split_index:].strip()
+
+    overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', evaluation_dict, recommendation)
