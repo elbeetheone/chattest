@@ -13,7 +13,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 from PyPDF2 import PdfReader, PdfWriter
 from io import BytesIO
 import base64
-import openai
+from openai import OpenAI
 
 engine = inflect.engine()
 
@@ -230,7 +230,8 @@ if bar == st.secrets['BAR_4']:
         if 'closing' not in _:
             user_response[_.replace(',',' ').strip()] = num.replace(',',' ')
 
-    response = openai.ChatCompletion.create(
+    client = OpenAI(api_key=st.secrets['open_ai_key'])
+    response = client.ChatCompletion.create(
     model="gpt-4",
     messages=[
         {"role": "system", "content": st.secrets['PROMPT']},
