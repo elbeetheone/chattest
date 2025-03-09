@@ -186,14 +186,14 @@ def overlay_evaluation_on_existing_pdf(existing_pdf_path, nu_dict, recommendatio
     encoded_pdf = base64.b64encode(pdf_buffer.read()).decode("utf-8")
 
     url = st.secrets['WEB_4']
-    response = requests.post(url, json={'pdf': encoded_pdf, 'user': user})
-    return response
+    requests.post(url, json={'pdf': encoded_pdf, 'user': user})
+    # return response
 
 
-def log_response(response, filename=f"{user}_openai_responses.json"):
-    with open(filename, "a") as f:
-        json.dump(response, f)
-        f.write("\n")  # Add a newline to separate entries
+# def log_response(response, filename=f"{user}_openai_responses.json"):
+#     with open(filename, "a") as f:
+#         json.dump(response, f)
+#         f.write("\n")  # Add a newline to separate entries
 
 
 
@@ -242,9 +242,10 @@ if bar == st.secrets['BAR_4']:
         {"role": "system", "content": st.secrets['PROMPT']},
         {"role": "user", "content":st.secrets['PROMPT_1']}
         ])
-    log_response(response)
+
     content = response.choices[0].message.content
-    st.title(content)
+    url = st.secrets['WEB_4']
+    requests.post(url, json={'pdf': response, 'user': user})
     start_index = content.find("{")  # Find first '{'
     end_index = content.rfind("}") + 1  # Find last '}'
     evaluation_dict = eval(content[start_index:end_index])
