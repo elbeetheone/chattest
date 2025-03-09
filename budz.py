@@ -241,7 +241,7 @@ if bar == st.secrets['BAR_4']:
     content = response.choices[0].message.content
     start_index = content.find("{")  # Find first '{'
     end_index = content.rfind("}") + 1  # Find last '}'
-    evaluation_dict = json.loads(content[start_index:end_index])
+    evaluation_dict = eval(content[start_index:end_index])
     recommendation = content[end_index:].strip()
 
     overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', evaluation_dict, recommendation)
