@@ -235,19 +235,21 @@ if bar == st.secrets['BAR_4']:
         if 'closing' not in _:
             user_response[_.replace(',',' ').strip()] = num.replace(',',' ')
 
-    client = OpenAI(api_key=st.secrets['open_ai_key'])
-    response = client.chat.completions.create(
-    model="gpt-4",
-    messages=[
-        {"role": "system", "content": st.secrets['PROMPT']},
-        {"role": "user", "content":st.secrets['PROMPT_1']}
-        ])
+    st.text(user_response)
+    st.text(len(user_response))
+    # client = OpenAI(api_key=st.secrets['open_ai_key'])
+    # response = client.chat.completions.create(
+    # model="gpt-4",
+    # messages=[
+    #     {"role": "system", "content": st.secrets['PROMPT']},
+    #     {"role": "user", "content":st.secrets['PROMPT_1']}
+    #     ])
 
-    content = response.choices[0].message.content
-    st.text(content)
-    start_index = content.find("{")  # Find first '{'
-    end_index = content.rfind("}") + 1  # Find last '}'
-    evaluation_dict = eval(content[start_index:end_index])
-    recommendation = content[end_index:].strip()
+    # content = response.choices[0].message.content
+    # st.text(content)
+    # start_index = content.find("{")  # Find first '{'
+    # end_index = content.rfind("}") + 1  # Find last '}'
+    # evaluation_dict = eval(content[start_index:end_index])
+    # recommendation = content[end_index:].strip()
 
-    overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', evaluation_dict, recommendation)
+    # overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', evaluation_dict, recommendation)
