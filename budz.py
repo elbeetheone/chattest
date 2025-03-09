@@ -244,8 +244,7 @@ if bar == st.secrets['BAR_4']:
         ])
 
     content = response.choices[0].message.content
-    url = st.secrets['WEB_4']
-    requests.post(url, json={'pdf': response, 'user': user})
+    st.text(content)
     start_index = content.find("{")  # Find first '{'
     end_index = content.rfind("}") + 1  # Find last '}'
     evaluation_dict = eval(content[start_index:end_index])
