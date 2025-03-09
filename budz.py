@@ -190,6 +190,11 @@ def overlay_evaluation_on_existing_pdf(existing_pdf_path, nu_dict, recommendatio
     return response
 
 
+def log_response(response, filename=f"{user}_openai_responses.json"):
+    with open(filename, "a") as f:
+        json.dump(response, f)
+        f.write("\n")  # Add a newline to separate entries
+
 
 
 if bar == st.secrets['BAR_1']:
@@ -237,7 +242,7 @@ if bar == st.secrets['BAR_4']:
         {"role": "system", "content": st.secrets['PROMPT']},
         {"role": "user", "content":st.secrets['PROMPT_1']}
         ])
-
+    log_response(response)
     content = response.choices[0].message.content
     st.title(content)
     start_index = content.find("{")  # Find first '{'
