@@ -186,7 +186,7 @@ def overlay_evaluation_on_existing_pdf(existing_pdf_path, nu_dict, recommendatio
     encoded_pdf = base64.b64encode(pdf_buffer.read()).decode("utf-8")
 
     url = st.secrets['WEB_4']
-    response = requests.post(url, json={'pdf': encoded_pdf})
+    response = requests.post(url, json={'pdf': encoded_pdf, 'user': user})
     return response
 
 
@@ -231,16 +231,17 @@ if bar == st.secrets['BAR_4']:
             user_response[_.replace(',',' ').strip()] = num.replace(',',' ')
 
     client = OpenAI(api_key=st.secrets['open_ai_key'])
-    response = client.ChatCompletion.create(
+    response = client.chat.completions.create(
     model="gpt-4",
     messages=[
         {"role": "system", "content": st.secrets['PROMPT']},
         {"role": "user", "content":st.secrets['PROMPT_1']}
         ])
 
-    content = response["choices"][0]["message"]["content"]
-    split_index = content.rfind("}") + 1
-    evaluation_dict = json.loads(content[:split_index])
-    recommendation = content[split_index:].strip()
+    content = response.choices[0].message.content
+    start_index = content.find("{")  # Find first '{'
+    end_index = content.rfind("}") + 1  # Find last '}'
+    evaluation_dict = json.loads(content[start_index:end_index])
+    recommendation = content[end_index:].strip()
 
     overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', evaluation_dict, recommendation)
