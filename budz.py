@@ -229,7 +229,7 @@ if bar == st.secrets['BAR_4']:
     with open("cover_page_aceit.pdf", "rb") as pdf_file:
         encoded_pdf = base64.b64encode(pdf_file.read()).decode("utf-8")
 
-
+        url = st.secrets['WEB_4']
     # Send the request with the encoded PDF
         response = requests.post(url, json={'pdf': encoded_pdf, 'user': user})
     # user_words = user_words.split("|")
