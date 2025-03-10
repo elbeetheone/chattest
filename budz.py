@@ -237,7 +237,7 @@ if bar == st.secrets['BAR_4']:
 
     client = OpenAI(api_key=st.secrets['open_ai_key'])
     response = client.chat.completions.create(
-    model="gpt-4",
+    model="gpt-4o-mini",
     messages=[
         {"role": "system", "content": st.secrets['PROMPT']},
         {"role": "user", "content": f'{user_response} \n' + st.secrets['PROMPT_1']}
