@@ -14,7 +14,6 @@ from PyPDF2 import PdfReader, PdfWriter
 from io import BytesIO
 import base64
 from openai import OpenAI
-import io
 
 engine = inflect.engine()
 
@@ -226,12 +225,6 @@ if bar == st.secrets['BAR_3']:
     requests.post(url, json = myobj)
 
 if bar == st.secrets['BAR_4']:
-    with open("cover_page_aceit.pdf", "rb") as pdf_file:
-        encoded_pdf = base64.b64encode(pdf_file.read()).decode("utf-8")
-
-        url = st.secrets['WEB_4']
-    # Send the request with the encoded PDF
-        response = requests.post(url, json={'pdf': encoded_pdf, 'user': user})
     # user_words = user_words.split("|")
     # items = [item.strip() for item in user_words if item.strip()]
     # questions = [item.split("A:")[0] for item in items if "A:" in item]
@@ -256,5 +249,34 @@ if bar == st.secrets['BAR_4']:
     # end_index = content.rfind("}") + 1  # Find last '}'
     # evaluation_dict = eval(content[start_index:end_index])
     # recommendation = content[end_index:].strip()
+    evaluation_dict = {'key_0': ('Relevance to the Role',
+  '⭐⭐⭐⭐☆ (4/5)',
+  ['The candidate provides a strong background in business intelligence, data analysis, and visualization, which are key skills.',
+   'Mentions experience in an e-commerce startup and currency exchange sector, which could be relevant depending on the industry.',
+   '- Could improve by briefly connecting their experience to how it aligns with this specific company’s role or industry.']),
+ 'key_1': ('Clarity & Structure',
+  '⭐⭐⭐⭐☆ (4/5)',
+  ['The response is logically structured, moving from past experience → appreciation for the field → learning & upskilling → ideal work environment.',
+   "- The transition from 'why I love data analysis' to 'I completed a Data Science bootcamp' feels a bit abrupt. Could benefit from a clearer connection."]),
+ 'key_2': ('Depth & Substance',
+  '⭐⭐⭐⭐☆ (4.5/5)',
+  ['The candidate goes beyond job titles, explaining what they appreciate about data analysis and how they’ve grown in the field.',
+   'Provides details about specific skills learned (data modeling, automation) which adds weight to their answer.',
+   '- Could strengthen this by mentioning a specific impactful project or key achievement in past roles.']),
+ 'key_3': ('Enthusiasm & Motivation',
+  '⭐⭐⭐⭐⭐ (5/5)',
+  ['Expresses genuine passion for data analysis and continuous learning.',
+   'Highlights the iterative and creative nature of the field, showing excitement beyond just technical skills.',
+   '- No major weaknesses here, though adding a brief note about why they’re excited about this company could be a bonus.']),
+ 'key_4': ('Growth Mindset & Adaptability',
+  '⭐⭐⭐⭐⭐ (5/5)',
+  ['The mention of completing a Data Science bootcamp shows proactive learning and adaptability.',
+   'Recognizes that learning is ongoing in this field, which is a great mindset.']),
+ 'key_5': ('Cultural & Team Fit',
+  '⭐⭐⭐⭐☆ (4/5)',
+  ['Describes thriving in a supportive, hardworking, and goal-oriented team—good indicators of a team player.',
+   '- Could personalize this more by linking it to a specific work style or company culture preference.'])}
 
-    # overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', evaluation_dict, recommendation)
+    recommendation = 'Hire the mofo'
+
+    overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', evaluation_dict, recommendation)
