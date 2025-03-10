@@ -281,6 +281,7 @@ if bar == st.secrets['BAR_4']:
         "Smoother transitions between sections for better flow.",
         "A brief mention of the company or role to tailor the response more."
     ],
-  "For example, in my previous role, I worked on a project that improved our data reporting efficiency by 30% by automating a key process. That experience solidified my interest in using data for decision-making, which is why I pursued additional training in data science."]} recommendation = 'Hire the mofo'
+  "For example, in my previous role, I worked on a project that improved our data reporting efficiency by 30% by automating a key process. That experience solidified my interest in using data for decision-making, which is why I pursued additional training in data science."]}
+    recommendation = 'Hire the mofo'
 
     overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', evaluation_dict, recommendation)
