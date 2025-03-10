@@ -14,6 +14,7 @@ from PyPDF2 import PdfReader, PdfWriter
 from io import BytesIO
 import base64
 from openai import OpenAI
+import io
 
 engine = inflect.engine()
 
