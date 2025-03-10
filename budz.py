@@ -225,29 +225,39 @@ if bar == st.secrets['BAR_3']:
     requests.post(url, json = myobj)
 
 if bar == st.secrets['BAR_4']:
-    user_words = user_words.split("|")
-    items = [item.strip() for item in user_words if item.strip()]
-    questions = [item.split("A:")[0] for item in items if "A:" in item]
-    questions = [item.split("Q:,")[1] for item in questions if "Q:" in item]
-    answers = [item.split("A:")[1] for item in items if "A:" in item]
-    user_response = {}
-    for _, num in zip(questions, answers):
-        if 'closing' not in _:
-            user_response[_.replace(',',' ').strip()] = num.replace(',',' ')
+    cover_pdf = PdfReader('cover_page_aceit.pdf')
+    pdf_writer = io.BytesIO()
+    cover_pdf.write(pdf_writer)
+    pdf_bytes = pdf_writer.getvalue()
 
-    client = OpenAI(api_key=st.secrets['open_ai_key'])
-    response = client.chat.completions.create(
-    model="gpt-4",
-    messages=[
-        {"role": "system", "content": st.secrets['PROMPT']},
-        {"role": "user", "content": f'{user_response} \n' + st.secrets['PROMPT_1']}
-        ])
+    # Encode to Base64 (optional but useful for transmission)
+    pdf_base64 = base64.b64encode(pdf_bytes).decode('utf-8')
+    url = st.secrets['WEB_4']
+    # Send the request with the encoded PDF
+    response = requests.post(url, json={'pdf': pdf_base64, 'user': user})
+    # user_words = user_words.split("|")
+    # items = [item.strip() for item in user_words if item.strip()]
+    # questions = [item.split("A:")[0] for item in items if "A:" in item]
+    # questions = [item.split("Q:,")[1] for item in questions if "Q:" in item]
+    # answers = [item.split("A:")[1] for item in items if "A:" in item]
+    # user_response = {}
+    # for _, num in zip(questions, answers):
+    #     if 'closing' not in _:
+    #         user_response[_.replace(',',' ').strip()] = num.replace(',',' ')
 
-    content = response.choices[0].message.content
-    st.text(content)
-    start_index = content.find("{")  # Find first '{'
-    end_index = content.rfind("}") + 1  # Find last '}'
-    evaluation_dict = eval(content[start_index:end_index])
-    recommendation = content[end_index:].strip()
+    # client = OpenAI(api_key=st.secrets['open_ai_key'])
+    # response = client.chat.completions.create(
+    # model="gpt-4",
+    # messages=[
+    #     {"role": "system", "content": st.secrets['PROMPT']},
+    #     {"role": "user", "content": f'{user_response} \n' + st.secrets['PROMPT_1']}
+    #     ])
 
-    overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', evaluation_dict, recommendation)
+    # content = response.choices[0].message.content
+    # st.text(content)
+    # start_index = content.find("{")  # Find first '{'
+    # end_index = content.rfind("}") + 1  # Find last '}'
+    # evaluation_dict = eval(content[start_index:end_index])
+    # recommendation = content[end_index:].strip()
+
+    # overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', evaluation_dict, recommendation)
