@@ -122,7 +122,7 @@ def get_feedback(content, content_dict, recommendation):
         content.append(Paragraph("<b>Final Feedback & Suggested Improvements</b>", header_style))
         content.append(Paragraph(f"<b>Overall Rating:</b> {content_dict[num][1]}", star_style))
         content.append(Paragraph(f"{content_dict[num][2]}", body_style))
-        improvements = content_dict[num][3]
+        improvements = content_dict[num][2]
 
         for improvement in improvements:
             content.append(Paragraph(f"{improvement}", bullet_style))
@@ -130,7 +130,7 @@ def get_feedback(content, content_dict, recommendation):
         content.append(Spacer(1, 10))
 
         content.append(Paragraph("<b>Example Improvement:</b>", subheader_style))
-        improvement_text = f"""{content_dict[num][4]}"""
+        improvement_text = f"""{content_dict[num][3]}"""
         content.append(Paragraph(improvement_text, body_style))
 
         content.append(Spacer(1, 10))
