@@ -121,8 +121,8 @@ def get_feedback(content, content_dict, recommendation):
             content.append(Spacer(1, 10))
         content.append(Paragraph("<b>Final Feedback & Suggested Improvements</b>", header_style))
         content.append(Paragraph(f"<b>Overall Rating:</b> {content_dict[num][1]}", star_style))
-        content.append(Paragraph(f"{content_dict[num][2]}", body_style))
-        improvements = content_dict[num][2]
+        content.append(Paragraph(f"{content_dict[num][2][0]}", body_style))
+        improvements = content_dict[num][2][-1]
 
         for improvement in improvements:
             content.append(Paragraph(f"{improvement}", bullet_style))
@@ -225,63 +225,29 @@ if bar == st.secrets['BAR_3']:
     requests.post(url, json = myobj)
 
 if bar == st.secrets['BAR_4']:
-    # user_words = user_words.split("|")
-    # items = [item.strip() for item in user_words if item.strip()]
-    # questions = [item.split("A:")[0] for item in items if "A:" in item]
-    # questions = [item.split("Q:,")[1] for item in questions if "Q:" in item]
-    # answers = [item.split("A:")[1] for item in items if "A:" in item]
-    # user_response = {}
-    # for _, num in zip(questions, answers):
-    #     if 'closing' not in _:
-    #         user_response[_.replace(',',' ').strip()] = num.replace(',',' ')
+    user_words = user_words.split("|")
+    items = [item.strip() for item in user_words if item.strip()]
+    questions = [item.split("A:")[0] for item in items if "A:" in item]
+    questions = [item.split("Q:,")[1] for item in questions if "Q:" in item]
+    answers = [item.split("A:")[1] for item in items if "A:" in item]
+    user_response = {}
+    for _, num in zip(questions, answers):
+        if 'closing' not in _:
+            user_response[_.replace(',',' ').strip()] = num.replace(',',' ')
 
-    # client = OpenAI(api_key=st.secrets['open_ai_key'])
-    # response = client.chat.completions.create(
-    # model="gpt-4",
-    # messages=[
-    #     {"role": "system", "content": st.secrets['PROMPT']},
-    #     {"role": "user", "content": f'{user_response} \n' + st.secrets['PROMPT_1']}
-    #     ])
+    client = OpenAI(api_key=st.secrets['open_ai_key'])
+    response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": st.secrets['PROMPT']},
+        {"role": "user", "content": f'{user_response} \n' + st.secrets['PROMPT_1']}
+        ])
 
-    # content = response.choices[0].message.content
-    # st.text(content)
-    # start_index = content.find("{")  # Find first '{'
-    # end_index = content.rfind("}") + 1  # Find last '}'
-    # evaluation_dict = eval(content[start_index:end_index])
-    # recommendation = content[end_index:].strip()
-    evaluation_dict = {'key_0': [[("Relevance to the Role", "⭐⭐⭐⭐☆ (4/5)", [
-            "The candidate provides a strong background in business intelligence, data analysis, and visualization, which are key skills.",
-            "Mentions experience in an e-commerce startup and currency exchange sector, which could be relevant depending on the industry.",
-            "- Could improve by briefly connecting their experience to how it aligns with this specific company’s role or industry."
-        ]),
-        ("Clarity & Structure", "⭐⭐⭐⭐☆ (4/5)", [
-            "The response is logically structured, moving from past experience → appreciation for the field → learning & upskilling → ideal work environment.",
-            "- The transition from 'why I love data analysis' to 'I completed a Data Science bootcamp' feels a bit abrupt. Could benefit from a clearer connection."
-        ]),
-        ("Depth & Substance", "⭐⭐⭐⭐☆ (4.5/5)", [
-            "The candidate goes beyond job titles, explaining what they appreciate about data analysis and how they’ve grown in the field.",
-            "Provides details about specific skills learned (data modeling, automation) which adds weight to their answer.",
-            "- Could strengthen this by mentioning a specific impactful project or key achievement in past roles."
-        ]),
-        ("Enthusiasm & Motivation", "⭐⭐⭐⭐⭐ (5/5)", [
-            "Expresses genuine passion for data analysis and continuous learning.",
-            "Highlights the iterative and creative nature of the field, showing excitement beyond just technical skills.",
-            "- No major weaknesses here, though adding a brief note about why they’re excited about this company could be a bonus."
-        ]),
-        ("Growth Mindset & Adaptability", "⭐⭐⭐⭐⭐ (5/5)", [
-            "The mention of completing a Data Science bootcamp shows proactive learning and adaptability.",
-            "Recognizes that learning is ongoing in this field, which is a great mindset."
-        ]),
-        ("Cultural & Team Fit", "⭐⭐⭐⭐☆ (4/5)", [
-            "Describes thriving in a supportive, hardworking, and goal-oriented team—good indicators of a team player.",
-            "- Could personalize this more by linking it to a specific work style or company culture preference."
-        ])], '⭐⭐⭐⭐☆ (4.5/5)',
- [
-        "Adding a concrete example of an impactful project or achievement.",
-        "Smoother transitions between sections for better flow.",
-        "A brief mention of the company or role to tailor the response more."
-    ],
-  "For example, in my previous role, I worked on a project that improved our data reporting efficiency by 30% by automating a key process. That experience solidified my interest in using data for decision-making, which is why I pursued additional training in data science."]}
-    recommendation = 'Hire the mofo'
+    content = response.choices[0].message.content
+    st.text(content)
+    start_index = content.find("{")  # Find first '{'
+    end_index = content.rfind("}") + 1  # Find last '}'
+    evaluation_dict = eval(content[start_index:end_index])
+    recommendation = content[end_index:].strip()
 
     overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', evaluation_dict, recommendation)
