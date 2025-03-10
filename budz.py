@@ -226,16 +226,12 @@ if bar == st.secrets['BAR_3']:
     requests.post(url, json = myobj)
 
 if bar == st.secrets['BAR_4']:
-    cover_pdf = PdfReader('cover_page_aceit.pdf')
-    pdf_writer = io.BytesIO()
-    cover_pdf.write(pdf_writer)
-    pdf_bytes = pdf_writer.getvalue()
+    with open("cover_page_aceit.pdf", "rb") as pdf_file:
+        encoded_pdf = base64.b64encode(pdf_file.read()).decode("utf-8")
 
-    # Encode to Base64 (optional but useful for transmission)
-    pdf_base64 = base64.b64encode(pdf_bytes).decode('utf-8')
-    url = st.secrets['WEB_4']
+
     # Send the request with the encoded PDF
-    response = requests.post(url, json={'pdf': pdf_base64, 'user': user})
+        response = requests.post(url, json={'pdf': encoded_pdf, 'user': user})
     # user_words = user_words.split("|")
     # items = [item.strip() for item in user_words if item.strip()]
     # questions = [item.split("A:")[0] for item in items if "A:" in item]
