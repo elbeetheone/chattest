@@ -8,3 +8,4 @@ inflect
 reportlab
 PyPDF2
 openai
+anvil-uplink
