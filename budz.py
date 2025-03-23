@@ -244,6 +244,9 @@ if bar == st.secrets['BAR_4']:
         ])
 
     content = response.choices[0].message.content
+    myobj = {'content': content}
+    requests.post('https://mealy-expensive-bone.anvil.app/_/api/log_resp', json = myobj)
+
     start_index = content.find("{")  # Find first '{'
     end_index = content.rfind("}") + 1  # Find last '}'
     evaluation_dict = eval(content[start_index:end_index])
