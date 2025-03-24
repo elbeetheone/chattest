@@ -14,7 +14,6 @@ from PyPDF2 import PdfReader, PdfWriter, PageObject
 from io import BytesIO
 import base64
 from openai import OpenAI
-import numpy as np
 
 engine = inflect.engine()
 
@@ -102,7 +101,7 @@ def paste_budz():
     return today_words
 
 
-def get_feedback(content, content_dict, recommendation):
+def get_feedback(content, content_str):
     packet = BytesIO()
     doc = SimpleDocTemplate(packet, pagesize=letter)
     styles = getSampleStyleSheet()
@@ -110,46 +109,38 @@ def get_feedback(content, content_dict, recommendation):
     # **Custom Styles**
     header_style = ParagraphStyle('Header', parent=styles['Heading1'], fontSize=14, textColor=colors.black, spaceAfter=10, bold=True)
     subheader_style = ParagraphStyle('SubHeader', parent=styles['Heading2'], fontSize=12, textColor=colors.orange, spaceAfter=8, bold=True)
-    bullet_style = ParagraphStyle('Bullet', parent=styles['Normal'], bulletText='•', spaceAfter=5, leftIndent=20)
+    bullet_style_1 = ParagraphStyle('Bullet', parent=styles['Normal'], bulletText='', textColor=colors.green, spaceAfter=5, leftIndent=20)
+    bullet_style_2 = ParagraphStyle('Bullet', parent=styles['Normal'], bulletText='', textColor=colors.red, spaceAfter=5, leftIndent=20)
     star_style = ParagraphStyle('Stars', parent=styles['Normal'], fontSize=12, textColor=colors.orange, spaceAfter=5)
-    body_style = ParagraphStyle('Body', parent=styles['Normal'], fontSize=11, textColor=colors.black, spaceAfter=10)
+    body_style = ParagraphStyle('Body', parent=styles['Normal'], textColor=colors.black, spaceAfter=5, bold=False)
 
-    for num in content_dict:
-        content.append(Paragraph(f"<b>{num}</b>", header_style))
-        for category, rating, points in content_dict[num][0]:
-            content.append(Paragraph(f"<b>{category}: {rating}</b>", subheader_style))
-            for point in points:
-                content.append(Paragraph(f"{point}", bullet_style))
+    lines = content_str.split("\n")
+    for num in lines:
+        if '#HEADER#' in num:
+            content.append(Paragraph(f"<b>{num.strip('#HEADER#')}</b>", header_style))
+        if '#SUBHEADER#' in num:
+            content.append(Paragraph(f"<b>{num.strip('#SUBHEADER#')}</b>", subheader_style))
+        if '#BULLET#' in num and '+' in num:
+            content.append(Paragraph(f"{num.strip('#BULLET#')}", bullet_style_1))
+        if '#BULLET#' in num and '-' in num:
+            content.append(Paragraph(f"{num.strip('#BULLET#')}", bullet_style_2))
+        if '#STARS#' in num:
+            content.append(Paragraph(f"<b>{num.strip('#STARS#')}</b>", star_style))
+        if '#BODY#' in num:
+            content.append(Paragraph(f"<b>{num.strip('#BODY#')}</b>", body_style))
+        else:
             content.append(Spacer(1, 10))
-        content.append(Paragraph("<b>Final Feedback & Suggested Improvements</b>", header_style))
-        content.append(Paragraph(f"<b>Overall Rating:</b> {content_dict[num][1]}", star_style))
-        content.append(Paragraph(f"{content_dict[num][2][0]}", body_style))
-        improvements = content_dict[num][2][-1]
-
-        for improvement in improvements:
-            content.append(Paragraph(f"{improvement}", bullet_style))
-
-        content.append(Spacer(1, 10))
-
-        content.append(Paragraph("<b>Example Improvement:</b>", subheader_style))
-        improvement_text = f"""{content_dict[num][3]}"""
-        content.append(Paragraph(improvement_text, body_style))
-
-        content.append(Spacer(1, 10))
-        content.append(Paragraph("<b>_________________________</b>", subheader_style))
-    content.append(Paragraph("<b>Recommendation</b>", header_style))
-    content.append(Paragraph(f"{recommendation}", body_style))
 
     return content, packet, doc
 
 
-def overlay_evaluation_on_existing_pdf(existing_pdf_path, nu_dict, recommendation):
+def overlay_evaluation_on_existing_pdf(existing_pdf_path, nu_str):
     # Step 1: Read the existing PDF
     existing_pdf = PdfReader(existing_pdf_path)
     output = PdfWriter()
 
 
-    content = get_feedback([], nu_dict, recommendation)
+    content = get_feedback([], nu_str)
     doc = content[-1]
     doc.build(content[0])
     packet = content[1]
@@ -189,14 +180,6 @@ def overlay_evaluation_on_existing_pdf(existing_pdf_path, nu_dict, recommendatio
 
     url = st.secrets['WEB_4']
     requests.post(url, json={'pdf': encoded_pdf, 'user': user})
-    # return response
-
-
-# def log_response(response, filename=f"{user}_openai_responses.json"):
-#     with open(filename, "a") as f:
-#         json.dump(response, f)
-#         f.write("\n")  # Add a newline to separate entries
-
 
 
 if bar == st.secrets['BAR_1']:
@@ -227,17 +210,7 @@ if bar == st.secrets['BAR_3']:
     requests.post(url, json = myobj)
 
 if bar == st.secrets['BAR_4']:
-    # user_words = user_words.split("|")
-    # items = [item.strip() for item in user_words if item.strip()]
-    # questions = [item.split("A:")[0] for item in items if "A:" in item]
-    # questions = [item.split("Q:,")[1] for item in questions if "Q:" in item]
-    # answers = [item.split("A:")[1] for item in items if "A:" in item]
-    # user_response = {}
-    # for _, num in zip(questions, answers):
-    #     if 'closing' not in _:
-    #         user_response[_.replace(',',' ').strip()] = num.replace(',',' ')
-
-    user_response = requests.get()
+    user_response = requests.get(st.secrets['WEB_5']+user).json()
     client = OpenAI(api_key=st.secrets['open_ai_key'])
     response = client.chat.completions.create(
     model="gpt-4o-mini",
@@ -249,10 +222,5 @@ if bar == st.secrets['BAR_4']:
     content = response.choices[0].message.content
     myobj = {'content': content}
     requests.post('https://mealy-expensive-bone.anvil.app/_/api/log_resp', json = myobj)
-
-    start_index = content.find("{")  # Find first '{'
-    end_index = content.rfind("}") + 1  # Find last '}'
-    evaluation_dict = eval(content[start_index:end_index])
-    recommendation = content[end_index:].strip()
-
-    overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', evaluation_dict, recommendation)
+    # Might need somewhere to log the responses
+    overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', content)
