@@ -14,6 +14,7 @@ from PyPDF2 import PdfReader, PdfWriter, PageObject
 from io import BytesIO
 import base64
 from openai import OpenAI
+import numpy as np
 
 engine = inflect.engine()
 
@@ -31,6 +32,7 @@ user = st.query_params.get("user", ["default_value"])
 foo = st.query_params.get("foo", ["default_value"])
 bar = st.query_params.get("bar", ["default_value"])
 route = st.query_params.get("route", ["default_value"])
+
 
 def get_adverb(word):
     # Basic rule to convert adjective to adverb
@@ -225,16 +227,17 @@ if bar == st.secrets['BAR_3']:
     requests.post(url, json = myobj)
 
 if bar == st.secrets['BAR_4']:
-    user_words = user_words.split("|")
-    items = [item.strip() for item in user_words if item.strip()]
-    questions = [item.split("A:")[0] for item in items if "A:" in item]
-    questions = [item.split("Q:,")[1] for item in questions if "Q:" in item]
-    answers = [item.split("A:")[1] for item in items if "A:" in item]
-    user_response = {}
-    for _, num in zip(questions, answers):
-        if 'closing' not in _:
-            user_response[_.replace(',',' ').strip()] = num.replace(',',' ')
+    # user_words = user_words.split("|")
+    # items = [item.strip() for item in user_words if item.strip()]
+    # questions = [item.split("A:")[0] for item in items if "A:" in item]
+    # questions = [item.split("Q:,")[1] for item in questions if "Q:" in item]
+    # answers = [item.split("A:")[1] for item in items if "A:" in item]
+    # user_response = {}
+    # for _, num in zip(questions, answers):
+    #     if 'closing' not in _:
+    #         user_response[_.replace(',',' ').strip()] = num.replace(',',' ')
 
+    user_response = requests.get()
     client = OpenAI(api_key=st.secrets['open_ai_key'])
     response = client.chat.completions.create(
     model="gpt-4o-mini",
