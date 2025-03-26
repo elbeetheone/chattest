@@ -107,17 +107,21 @@ def get_feedback(content, content_str):
     styles = getSampleStyleSheet()
 
     # **Custom Styles**
-    header_style = ParagraphStyle('Header', parent=styles['Heading1'], fontSize=14, textColor=colors.black, spaceAfter=10, bold=True)
-    subheader_style = ParagraphStyle('SubHeader', parent=styles['Heading2'], fontSize=12, textColor=colors.orange, spaceAfter=8, bold=True)
+    header_style = ParagraphStyle('Header', parent=styles['Heading1'], fontSize=16, textColor=colors.black, spaceAfter=8, bold=True)
+    subheader_style = ParagraphStyle('SubHeader', parent=styles['Heading2'], fontSize=12, textColor=colors.black, spaceAfter=5, bold=True)
     bullet_style_1 = ParagraphStyle('Bullet', parent=styles['Normal'], bulletText='', textColor=colors.green, spaceAfter=5, leftIndent=20)
     bullet_style_2 = ParagraphStyle('Bullet', parent=styles['Normal'], bulletText='', textColor=colors.red, spaceAfter=5, leftIndent=20)
     star_style = ParagraphStyle('Stars', parent=styles['Normal'], fontSize=12, textColor=colors.orange, spaceAfter=5)
-    body_style = ParagraphStyle('Body', parent=styles['Normal'], textColor=colors.black, spaceAfter=5, bold=False)
+    body_style = ParagraphStyle('Body', parent=styles['Normal'], textColor=colors.black, spaceAfter=8, bold=False)
+    final_style = ParagraphStyle('Header', parent=styles['Heading1'], fontSize=16, textColor=colors.black, spaceAfter=8, bold=True)
+
 
     lines = content_str.split("\n")
     for num in lines:
         if '#HEADER#' in num:
             content.append(Paragraph(f"<b>{num.strip('#HEADER#')}</b>", header_style))
+        if '#SUBHEADER#' in num and 'Question' in num:
+            content.append(Paragraph("<b>_________________________________</b>", subheader_style))
         if '#SUBHEADER#' in num:
             content.append(Paragraph(f"<b>{num.strip('#SUBHEADER#')}</b>", subheader_style))
         if '#BULLET#' in num and '+' in num:
@@ -128,8 +132,12 @@ def get_feedback(content, content_str):
             content.append(Paragraph(f"<b>{num.strip('#STARS#')}</b>", star_style))
         if '#BODY#' in num:
             content.append(Paragraph(f"<b>{num.strip('#BODY#')}</b>", body_style))
+        if '#FINAL#' in num:
+            content.append(Paragraph("<b>_________________________________</b>"))
+            content.append(Paragraph("<b>*     *     *</b>", final_style))
+            content.append(Paragraph(f"<b>{num.strip('#FINAL#')}</b>", final_style))
         else:
-            content.append(Spacer(1, 10))
+            pass
 
     return content, packet, doc
 
