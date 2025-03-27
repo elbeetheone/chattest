@@ -6,7 +6,7 @@ import json
 import requests
 import inflect
 import random
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
@@ -103,7 +103,7 @@ def paste_budz():
 
 def get_feedback(content, content_str):
     packet = BytesIO()
-    doc = SimpleDocTemplate(packet, pagesize=letter)
+    doc = SimpleDocTemplate(packet, pagesize=A4)
     styles = getSampleStyleSheet()
 
     # **Custom Styles**
