@@ -8,4 +8,3 @@ inflect
 reportlab
 PyPDF2
 openai
-telegram-bot
