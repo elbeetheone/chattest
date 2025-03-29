@@ -131,7 +131,7 @@ def get_feedback(content, content_str):
         if '#STARS#' in num:
             content.append(Paragraph(f"<b>{num.strip('#STARS#')}</b>", star_style))
         if '#BODY#' in num:
-            content.append(Paragraph(f"<b>{num.strip('#BODY#')}</b>", body_style))
+            content.append(Paragraph(f"{num.strip('#BODY#')}", body_style))
         if '#FINAL#' in num:
             content.append(Paragraph("<b>_________________________________</b>"))
             content.append(Paragraph("<b>*     *     *</b>", final_style))
