@@ -232,4 +232,3 @@ if bar == st.secrets['BAR_4']:
     requests.post('https://mealy-expensive-bone.anvil.app/_/api/log_resp', json = myobj)
     # Might need somewhere to log the responses
     overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', content)
-    #for pdf creation
