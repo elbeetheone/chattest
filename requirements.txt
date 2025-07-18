@@ -3,6 +3,7 @@ gensim
 english_words
 scipy==1.10.0
 tensorflow
+nltk
 POT
 inflect
 reportlab

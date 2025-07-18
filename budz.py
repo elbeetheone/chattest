@@ -3,6 +3,8 @@ import difflib
 from english_words import get_english_words_set
 import gensim.downloader
 from gensim.utils import simple_preprocess
+import nltk
+from nltk.corpus import stopwords
 import json
 import requests
 import inflect
@@ -24,7 +26,16 @@ def load_model(name):
     model_wiki = gensim.downloader.load(name)
     return model_wiki
 
+@st.cache_resource
+def stop_words():
+    nltk.download('stopwords')
+    stop_words = set(stopwords.words('english'))
+    return stop_words
+
 wv = load_model("glove-wiki-gigaword-50")
+stop_words = stop_words()
+
+
 
 # Extract parameters with default values if they don't exist
 user_words = st.query_params.get("user_words", ["default_value"])
@@ -73,13 +84,22 @@ def seenonim(user_response):
 def get_transcript(topic, transcript, controls):
     topic = simple_preprocess(topic)
     transcript = simple_preprocess(transcript)
+    topic = [w for w in topic if w not in stop_words]
+    transcript = [w for w in transcript if w not in stop_words]
+    min_ratio = 0.5
+    if len(transcript) < min_ratio * len(topic):
+        similarity = 0.5
+        return similarity-controls  # Too short to compare meaningfully
     try:
         distance = wv.wmdistance(topic,transcript)
         similarity = 1 / (1 + distance)  # Invert and normalize (0 to 1 range)
     except:
         similarity = 0.5  # Default if computation fails
 
-    return similarity-controls
+    if len(transcript) < min_ratio * len(topic):
+        return similarity-controls-0.25  # Too short to compare meaningfully
+    else:
+        return similarity-controls
 
 
 def words_web():
