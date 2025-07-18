@@ -2,6 +2,7 @@ import streamlit as st
 import difflib
 from english_words import get_english_words_set
 import gensim.downloader
+from gensim.utils import simple_preprocess
 import json
 import requests
 import inflect
@@ -70,12 +71,16 @@ def seenonim(user_response):
     return nu_list
 
 def get_transcript(topic, transcript, controls):
-    ratings = abs(1-wv.wmdistance(topic,transcript))
-    ratings = ratings - controls
-    if ratings < 0.5:
-        ratings = 0.5
-    ratings = json.dumps(str(ratings))
-    return ratings
+    topic = simple_preprocess(topic)
+    transcript = simple_preprocess(transcript)
+    try:
+        distance = wv.wmdistance(topic,transcript)
+        similarity = 1 / (1 + distance)  # Invert and normalize (0 to 1 range)
+    except:
+        similarity = 0.5  # Default if computation fails
+
+    return similarity-controls
+
 
 def words_web():
     words = list(wv.key_to_index.keys())
@@ -228,8 +233,8 @@ if bar == st.secrets['BAR_4']:
         ])
 
     content = response.choices[0].message.content
-    myobj = {'content': content}
-    requests.post('https://mealy-expensive-bone.anvil.app/_/api/log_resp', json = myobj)
+    # myobj = {'content': content}
+    # requests.post('https://mealy-expensive-bone.anvil.app/_/api/log_resp', json = myobj)
     # Might need somewhere to log the responses
     overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', content)
     #for pdf creation
