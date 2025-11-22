@@ -102,6 +102,25 @@ def get_transcript(topic, transcript, controls):
         return similarity-controls
 
 
+def kaawe(topic, transcript):
+    topic = simple_preprocess(topic)
+    transcript = simple_preprocess(transcript)
+    topic = [w for w in topic if w not in stop_words]
+    transcript = [w for w in transcript if w not in stop_words]
+    min_ratio = 0.25
+
+    try:
+        distance = wv.wmdistance(topic,transcript)
+        similarity = 1 / (1 + distance)  # Invert and normalize (0 to 1 range)
+    except:
+        similarity = 0.5  # Default if computation fails
+
+    if len(transcript) < min_ratio * len(topic):
+        return similarity-0.25  # Too short to compare meaningfully
+    else:
+        return similarity
+
+
 def words_web():
     words = list(wv.key_to_index.keys())
     web2lowerset = get_english_words_set(['web2'], lower=True)
@@ -233,7 +252,7 @@ if bar == st.secrets['BAR_2']:
     requests.post(url, json = myobj)
 
 
-if bar == st.secrets['BAR_3']:
+if bar == st.secrets['BAR_3']: #wordbudz league
     foo_ = int(foo) if foo.isdigit() else None
     list_to_pass = []
     for num in range(foo_):
@@ -242,7 +261,7 @@ if bar == st.secrets['BAR_3']:
     myobj = {'user_words': list_to_pass, 'league': route}
     requests.post(url, json = myobj)
 
-if bar == st.secrets['BAR_4']:
+if bar == st.secrets['BAR_4']: #ace_it
     user_response = requests.get(st.secrets['WEB_5']+user).json()
     client = OpenAI(api_key=st.secrets['open_ai_key'])
     response = client.chat.completions.create(
@@ -258,3 +277,12 @@ if bar == st.secrets['BAR_4']:
     # Might need somewhere to log the responses
     overlay_evaluation_on_existing_pdf('watermark_aceit.pdf', content)
     #for pdf creation
+
+if bar == st.secrets['BAR_5']: # kaawe
+    class_ = foo
+    user = user
+    myobj = {'user':user, 'class_':class_}
+    passage = requests.get('https://svelte-possible-work.anvil.app/_/get_passages', json=myobj)
+    comp_score = kaawe(passage[0], passage[-1])
+
+    #use api to get user's summary and og passage
