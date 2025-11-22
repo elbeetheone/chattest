@@ -282,7 +282,7 @@ if bar == st.secrets['BAR_5']: # kaawe
     class_ = foo
     user = user
     myobj = {'user':user, 'class_':class_}
-    passage = requests.get('https://svelte-possible-work.anvil.app/_/get_passages', json=myobj)
+    passage = requests.get('https://svelte-possible-work.anvil.app/_/api/get_passages', json=myobj)
     comp_score = kaawe(passage[0], passage[-1])
     url = st.secrets['WEB_6']
     myobj = {'user':user, 'class_':class_, 'score': comp_score}
