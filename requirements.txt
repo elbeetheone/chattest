@@ -9,3 +9,6 @@ inflect
 reportlab
 PyPDF2
 openai
+language_tool_python
+textstat
+spacy
