@@ -37,8 +37,13 @@ def load_all_nlp_resources():
     # Load grammar checker
     grammar_tool = language_tool_python.LanguageTool('en-US')
 
-    # Load spaCy model
-    nlp = spacy.load('en_core_web_sm')
+    # Load spaCy model (download if not present)
+    try:
+        nlp = spacy.load('en_core_web_sm')
+    except OSError:
+        import subprocess
+        subprocess.run(['python', '-m', 'spacy', 'download', 'en_core_web_sm'])
+        nlp = spacy.load('en_core_web_sm')
 
     return wv, stop_words, grammar_tool, nlp
 
