@@ -17,38 +17,23 @@ from PyPDF2 import PdfReader, PdfWriter, PageObject
 from io import BytesIO
 import base64
 from openai import OpenAI
-import language_tool_python
-from textstat import flesch_kincaid_grade
-import spacy
 
 engine = inflect.engine()
 
 
 @st.cache_resource
-def load_all_nlp_resources():
-    """Load all NLP resources once and cache them"""
-    # Download stopwords if needed
-    nltk.download('stopwords', quiet=True)
+def load_model(name):
+    model_wiki = gensim.downloader.load(name)
+    return model_wiki
+
+@st.cache_resource
+def stop_words():
+    nltk.download('stopwords')
     stop_words = set(stopwords.words('english'))
+    return stop_words
 
-    # Load word vectors
-    wv = gensim.downloader.load("glove-wiki-gigaword-50")
-
-    # Load grammar checker
-    grammar_tool = language_tool_python.LanguageTool('en-US')
-
-    # Load spaCy model (download if not present)
-    try:
-        nlp = spacy.load('en_core_web_sm')
-    except OSError:
-        import subprocess
-        subprocess.run(['python', '-m', 'spacy', 'download', 'en_core_web_sm'])
-        nlp = spacy.load('en_core_web_sm')
-
-    return wv, stop_words, grammar_tool, nlp
-
-# Load once at the start
-wv, stop_words, grammar_tool, nlp = load_all_nlp_resources()
+wv = load_model("glove-wiki-gigaword-50")
+stop_words = stop_words()
 
 
 
@@ -118,107 +103,22 @@ def get_transcript(topic, transcript, controls):
 
 
 def kaawe(topic, transcript):
-    # Original preprocessing for WMDistance
-    topic_processed = simple_preprocess(topic)
-    transcript_processed = simple_preprocess(transcript)
-    topic_processed = [w for w in topic_processed if w not in stop_words]
-    transcript_processed = [w for w in transcript_processed if w not in stop_words]
+    topic = simple_preprocess(topic)
+    transcript = simple_preprocess(transcript)
+    topic = [w for w in topic if w not in stop_words]
+    transcript = [w for w in transcript if w not in stop_words]
+    min_ratio = 0.25
 
-    min_ratio = 0.20  # More lenient for kids (was 0.25)
-
-    # 1. WMDistance Score (semantic similarity - did they understand?)
     try:
-        distance = wv.wmdistance(topic_processed, transcript_processed)
-        wmd_score = 1 / (1 + distance)
+        distance = wv.wmdistance(topic,transcript)
+        similarity = 1 / (1 + distance)  # Invert and normalize (0 to 1 range)
     except:
-        wmd_score = 0.5
+        similarity = 0.5  # Default if computation fails
 
-    # Length penalty - more forgiving
-    if len(transcript_processed) < min_ratio * len(topic_processed):
-        wmd_score -= 0.15  # Smaller penalty (was 0.25)
-
-    # 2. Grammar Score - Focus on major errors only
-    grammar_errors = grammar_tool.check(transcript)
-
-    # Filter to only critical errors (ignore minor style suggestions)
-    critical_errors = [
-        err for err in grammar_errors
-        if err.category in ['GRAMMAR', 'TYPOS', 'CONFUSED_WORDS']
-        and 'style' not in err.message.lower()
-    ]
-
-    word_count = len(transcript.split())
-    if word_count > 0:
-        # More forgiving: 20+ critical errors per 100 words = 0 score
-        error_density = len(critical_errors) / word_count * 100
-        grammar_score = max(0, 1 - (error_density / 20))
+    if len(transcript) < min_ratio * len(topic):
+        return similarity-0.25  # Too short to compare meaningfully
     else:
-        grammar_score = 0
-
-    # 3. Age-Appropriate Readability
-    try:
-        # Flesch-Kincaid Grade Level - appropriate for kids
-        grade_level = flesch_kincaid_grade(transcript)
-
-        # For kids, we want simpler language (grades 3-8 is good)
-        # Score higher for age-appropriate complexity
-        if 2 <= grade_level <= 8:
-            readability_score = 1.0  # Perfect range
-        elif grade_level < 2:
-            readability_score = 0.8  # Too simple (may be incomplete)
-        elif grade_level <= 10:
-            readability_score = 0.9  # Slightly advanced but good
-        else:
-            readability_score = max(0.5, 1 - ((grade_level - 10) * 0.05))
-    except:
-        readability_score = 0.7  # Neutral default
-
-    # 4. Basic Sentence Completeness (simplified for kids)
-    doc = nlp(transcript)
-    sentences = list(doc.sents)
-
-    if len(sentences) > 0:
-        complete_sentences = 0
-        for sent in sentences:
-            # More lenient - just needs a verb OR reasonable length
-            has_verb = any(token.pos_ in ['VERB', 'AUX'] for token in sent)
-            reasonable_length = len(sent) >= 3  # At least 3 words
-
-            if has_verb or reasonable_length:
-                complete_sentences += 1
-
-        structure_score = complete_sentences / len(sentences)
-    else:
-        structure_score = 0
-
-    # 5. Effort/Completeness bonus
-    # Reward kids for trying and writing more
-    effort_bonus = 0
-    if word_count >= 10:  # Wrote at least 10 words
-        effort_bonus = 0.05
-    if word_count >= 25:  # Wrote a good amount
-        effort_bonus = 0.10
-
-    # Combine scores with kid-friendly weights
-    weights = {
-        'semantic': 0.45,      # Understanding is most important
-        'grammar': 0.20,       # Grammar matters but not too harsh
-        'readability': 0.15,   # Age-appropriate language
-        'structure': 0.20      # Complete thoughts
-    }
-
-    final_score = (
-        wmd_score * weights['semantic'] +
-        grammar_score * weights['grammar'] +
-        readability_score * weights['readability'] +
-        structure_score * weights['structure'] +
-        effort_bonus
-    )
-
-    # Cap at 1.0
-    final_score = min(1.0, final_score)
-
-    return final_score
+        return similarity
 
 
 def words_web():
