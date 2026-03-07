@@ -18,6 +18,11 @@ from io import BytesIO
 import base64
 from openai import OpenAI
 
+
+if st.query_params.get("health") == "check":
+    st.write("OK")
+    st.stop()
+
 engine = inflect.engine()
 
 
