@@ -80,7 +80,7 @@ def seenonim(user_response):
                 #control for words that are too similarly spelt
             else:
                 score = wv.similarity(today[num],response_lower)
-                nu_list.append(json.dumps(str((score))))
+                nu_list.append(json.dumps(str((score)))) if score > 0 else nu_list.append(json.dumps(str(0)))
         except Exception as e:
             # nu_list.append({'word':today[num], 'score': 0, 'scores': 0, 'synonym': user_response[num]})
             nu_list.append(json.dumps(str(0)))
